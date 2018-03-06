@@ -99,15 +99,53 @@ class AssetDetails(AssetBase):
                     UniqueIdentifier.CreateFromJSON(identifier)
                 )
 
+        details.vulnerability_instances = []
+        try:
+            vulnerabilities_instance_list = json_dict['vulnerability_instances']['json']
+        except KeyError:
+            # Vulnerability_instances are not present
+            pass
+        else:
+            for vuln in vulnerabilities_instance_list:
+                details.vulnerability_instances.append(
+                    VulnerabilityInstanceEntity.CreateFromJSON(vuln))
+
+        details.vulnerabilities = []
+        try:
+            vulnerabilities_list = json_dict['vulnerabilities']['json']
+        except KeyError:
+            # Vulnerabilities are not present
+            pass
+        else:
+            for vuln in vulnerabilities_list:
+                details.vulnerabilities.append(
+                    VulnerabilityEntity.CreateFromJSON(vuln)
+                )
+        details.software = []
+        try:
+            software_list = json_dict['software']['json']
+        except KeyError:
+            # No software list
+            pass
+        else:
+            for software in software_list:
+                details.software.append(
+                     SoftwareEntity.CreateFromJSON(software))
+        details.services = []
+        try:
+            services_list = json_dict['services']['json']
+        except KeyError:
+            # Services are not present
+            pass
+        else:
+            for service in services_list:
+                details.services.append(
+                     ServiceEntity.CreateFromJSON(service))
         # TODO:
         # ----begin
         details.files = []
-        details.vulnerability_instances = []
         details.group_accounts = []
         details.user_accounts = []
-        details.vulnerabilities = []
-        details.software = []
-        details.services = []
         # TODO:
         # ----end
         return details
@@ -152,3 +190,123 @@ class UniqueIdentifier(object):
             type=self.source,
             id=self.id,
         )
+
+class VulnerabilityEntity(object):
+
+    def __init__(self):
+        self.url = ''
+        self.id = ''
+        self.vulnerability_definition = ''
+        self.title = ''
+
+    @staticmethod
+    def CreateFromJSON(json_dict):
+        vulnerability_entity = VulnerabilityEntity()
+        vulnerability_entity.url = json_dict['url']
+        vulnerability_entity.id = json_dict['id']
+        vulnerability_entity.vulnerability_definition = json_dict['vulnerability_definition']
+        vulnerability_entity.title = json_dict['title']
+        return vulnerability_entity
+
+    def __repr__(self):
+        return '<VulnerabilityEntity {title}: {id}>'.format(
+            title=self.title,
+            id=self.id,
+        )
+
+
+class ServiceEntity(object):
+
+    def __init__(self):
+        self.url = ''
+        self.protocol = ''
+        self.port = ''
+        self.name = ''
+        self.vulnerabilities = []
+
+    @staticmethod
+    def CreateFromJSON(json_dict):
+        service_entity = ServiceEntity()
+        service_entity.url = json_dict['url']
+        service_entity.protocol = json_dict['protocol']
+        service_entity.port = json_dict['port']
+        service_entity.name = json_dict['name']
+        vuln_list = json_dict['vulnerabilities']
+        for vuln in vuln_list:
+            print(" -- vuln --:", vuln)
+            service_entity.vulnerabilities.append(
+                  VulnerabilityEntity.CreateFromJSON(vuln))
+        return service_entity
+
+    def __repr__(self):
+        return '<ServiceEntity {title}: {id}>'.format(
+            title=self.name,
+            id=self.protocol,
+        )
+
+class SoftwareEntity(object):
+
+    def __init__(self):
+        self.product = ''
+        self.vendor = ''
+        self.family = ''
+        self.url = ''
+        self.version = ''
+        self.type = ''
+
+    @staticmethod
+    def CreateFromJSON(json_dict):
+        software_entity = SoftwareEntity()
+        software_entity.product = json_dict['product']
+        software_entity.vendor = json_dict['vendor']
+        software_entity.family = json_dict['family']
+        software_entity.url = json_dict['url']
+        software_entity.version = json_dict['version']
+        software_entity.type = json_dict['type']
+        return software_entity
+
+    def __repr__(self):
+        return '<SoftwareEntity {title}: {id}>'.format(
+            title=self.product,
+            id=self.version,
+        )
+
+class VulnerabilityInstanceEntity(object):
+
+    def __init__(self):
+        self.status = ''
+        self.asset_id = ''
+        self.scan_id = ''
+        self.protocol = ''
+        self.asset_ip_address = ''
+        self.service = ''
+        self.url = ''
+        self.key = ''
+        self.date = ''
+        self.port = ''
+        self.vulnerability_id = ''
+        self.proof = ''
+
+    @staticmethod
+    def CreateFromJSON(json_dict):
+        vulnerability_instance_entity = VulnerabilityInstanceEntity()
+        vulnerability_instance_entity.status = json_dict['status']
+        vulnerability_instance_entity.asset_id = json_dict['asset_id']
+        vulnerability_instance_entity.scan_id = json_dict['scan_id']
+        vulnerability_instance_entity.protocol = json_dict['protocol']
+        vulnerability_instance_entity.asset_ip_address = json_dict['asset_ip_address']
+        vulnerability_instance_entity.service = json_dict['service']
+        vulnerability_instance_entity.url = json_dict['url']
+        vulnerability_instance_entity.key = json_dict['key']
+        vulnerability_instance_entity.date = json_dict['date']
+        vulnerability_instance_entity.port = json_dict['port']
+        vulnerability_instance_entity.vulnerability_id = json_dict['vulnerability_id']
+        vulnerability_instance_entity.proof = json_dict['proof']
+        return vulnerability_instance_entity
+
+    def __repr__(self):
+        return '<VulnerabilityInstanceEntity {title}: {id}>'.format(
+            title=self.service,
+            id=self.proof,
+        )
+
